@@ -24,6 +24,13 @@ def visit_equiv_matrices(matrix):
 	cur_hash = cnot_util.matrix_to_int(matrix)
 	cur_distance = reached[cur_hash]
 
+	'''
+	print
+	for arr in matrix:
+		print arr
+	print
+	'''
+
 	perm = range(N)
 
 	while perm: # quits when perm is None
@@ -31,11 +38,6 @@ def visit_equiv_matrices(matrix):
 		# apply PMP^-1, hash result with matrix_to_int, store in reached and distances
 
 		permuted_matrix = perm_as_pmp(perm, matrix)
-		if cur_distance == 1:
-			for arr in permuted_matrix:
-				print arr
-			print
-
 		permuted_hash = cnot_util.matrix_to_int(permuted_matrix)
 
 		if not (permuted_hash in reached):
@@ -70,7 +72,7 @@ def extend(op_list):
 				# if i == a and j =/= b, order by j and b
 				# if i == a and j == b, do nothing
 
-				
+				'''
 				if not (i == a) and not (i == b) and not (j == a):
 					if i > a:
 						continue
@@ -82,7 +84,7 @@ def extend(op_list):
 				if i == a and j == b:
 					continue # Temporarily removes some optimization for testing
 
-				'''
+				
 
 			to_append = op_list + [(i, j)]
 			to_append_hash = cnot_util.matrix_to_int(cnot_util.perform_ops(cnot_util.identity(N, M), to_append))
@@ -114,6 +116,7 @@ def bfs():
 
 		cur_matrix = cnot_util.perform_ops(cnot_util.identity(N, M), cur) # for M total rows, extra are ancilla
 		cur_hash = cnot_util.matrix_to_int(cur_matrix)
+
 
 		if cur_hash in reached:
 			continue

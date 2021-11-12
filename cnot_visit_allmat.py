@@ -90,7 +90,7 @@ if __name__ == '__main__':
 	global distances
 	
 
-	N = 4
+	N = 3
 	queue = collections.deque([])
 
 	print "Running visit allmat on N = " + str(N)
