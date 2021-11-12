@@ -9,6 +9,26 @@ class PMP_class:
 		self.members = []
 		self.adjacent = []
 
+	def __lt__(self, other):
+         return self.dist < other.dist
+
+	def __str__(self):
+		output = ""
+		output = output + "\nRep for class of distance " + str(self.dist) + "\n"
+		for arr in self.rep:
+			output = output + str(arr) + "\n"
+
+		output = output + "Adjacent distances:\n"
+		for adj in self.adjacent:
+			output = output + str(adj.dist) + " "
+			'''
+			for arr in adj.rep:
+				output = output + str(arr) + "\n"
+			ourput = output + "\n \n"
+			'''
+		return output
+
+
 
 
 def perm_as_pmp(perm, matrix):
@@ -38,6 +58,7 @@ def visit_equiv_matrices(matrix):
 	cur_distance = reached[cur_hash]
 
 	cur_pmp = PMP_class(matrix, cur_distance)
+	print cur_pmp.rep
 	pmp_to_matrix[cur_pmp] = matrix
 
 	perm = range(N)
@@ -158,8 +179,8 @@ def pmp_adjacent(pmp_1, pmp_2):
 
 	class_rep = pmp_1.rep
 
-	for i in range(N + 1):
-		for j in range(N + 1):
+	for i in range(1, N + 1):
+		for j in range(1, N + 1):
 			if i == j:
 				continue
 
@@ -171,7 +192,6 @@ def pmp_adjacent(pmp_1, pmp_2):
 				cnot_util.operation(class_rep, i, j)
 
 	return False
-
 
 def build_pmp_graph():
 	global N
@@ -197,7 +217,7 @@ if __name__ == "__main__":
 	global M # total rows, extra are ancilla
 	global queue
 
-	N = 4
+	N = 3
 	M = N
 
 
@@ -206,6 +226,7 @@ if __name__ == "__main__":
 	print "Running search of all matrices with PMP^-1 for N = " + str(N)
 
 	bfs()
+	build_pmp_graph()
 
 	dist_keys = distances.keys()
 	dist_keys.sort()
@@ -214,15 +235,6 @@ if __name__ == "__main__":
 	print "Matrix distances:"
 	for key in dist_keys:
 		print str(key) + ": " + str(len(distances[key]))
-
-	distances[2] = sorted(distances[2])
-
-	'''
-	for matrix in distances[2]:
-		for i in range(len(matrix)):
-			print matrix[i]
-		print
-	'''
 
 	print
 	pmp_keys = pmp_to_matrix.keys()
@@ -236,6 +248,17 @@ if __name__ == "__main__":
 		if dist_ct[i] == 0:
 			continue
 		print str(i) + ": " + str(dist_ct[i])
+
+	print
+	print "class representatives:"
+	pmp_keys.sort()
+	for key in pmp_keys:
+		print key.dist
+		for arr in key.rep:
+			print arr
+
+	for key in pmp_keys:
+		print key
 
 
 
