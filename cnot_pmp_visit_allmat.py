@@ -6,7 +6,7 @@ class PMP_class:
 	def __init__(self, representative, distance):
 		self.rep = representative
 		self.dist = distance
-		self.members = []
+		self.members = set()
 		self.adjacent = []
 
 	def __lt__(self, other):
@@ -14,7 +14,7 @@ class PMP_class:
 
 	def __str__(self):
 		output = ""
-		output = output + "\nRep for class of distance " + str(self.dist) + "\n"
+		output = output + "\nRep for class of distance " + str(self.dist) + " with " + str(len(self.members)) + " members:\n"
 		for arr in self.rep:
 			output = output + str(arr) + "\n"
 
@@ -58,7 +58,6 @@ def visit_equiv_matrices(matrix):
 	cur_distance = reached[cur_hash]
 
 	cur_pmp = PMP_class(matrix, cur_distance)
-	print cur_pmp.rep
 	pmp_to_matrix[cur_pmp] = matrix
 
 	perm = range(N)
@@ -70,7 +69,7 @@ def visit_equiv_matrices(matrix):
 		permuted_matrix = perm_as_pmp(perm, matrix)
 		permuted_hash = cnot_util.matrix_to_int(permuted_matrix)
 
-		cur_pmp.members.append(permuted_matrix)
+		cur_pmp.members.add(permuted_hash)
 		matrix_to_pmp[permuted_hash] = cur_pmp
 
 		if not (permuted_hash in reached):
@@ -185,7 +184,7 @@ def pmp_adjacent(pmp_1, pmp_2):
 				continue
 
 			cnot_util.operation(class_rep, i, j)
-			if class_rep in pmp_2.members:
+			if cnot_util.matrix_to_int(class_rep) in pmp_2.members:
 				cnot_util.operation(class_rep, i, j)
 				return True
 			else:
@@ -217,7 +216,7 @@ if __name__ == "__main__":
 	global M # total rows, extra are ancilla
 	global queue
 
-	N = 3
+	N = 4
 	M = N
 
 
@@ -250,15 +249,18 @@ if __name__ == "__main__":
 		print str(i) + ": " + str(dist_ct[i])
 
 	print
+	'''
 	print "class representatives:"
-	pmp_keys.sort()
 	for key in pmp_keys:
 		print key.dist
 		for arr in key.rep:
 			print arr
+	'''
 
+	pmp_keys.sort()
 	for key in pmp_keys:
-		print key
+		if len(key.members) == 1:
+			print key
 
 
 

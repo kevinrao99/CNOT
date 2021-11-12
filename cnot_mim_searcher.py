@@ -66,7 +66,7 @@ def direction_modular(dir_queue, store_queue, direction):
 		matrix_hash = 0
 
 		if direction == 0:
-			matrix_ops = cnot_util.perform_ops(cnot_util.identity(N), cur)
+			matrix_ops = cnot_util.perform_ops(cnot_util.identity(N, N), cur)
 		else:
 			matrix_ops = cnot_util.perform_ops(target_copy(), cur)
 
@@ -212,7 +212,7 @@ def this_run_target():
 		N = max(N, a)
 		N = max(N, b)
 
-	target = cnot_util.perform_ops(cnot_util.identity(N), ops)
+	target = cnot_util.perform_ops(cnot_util.identity(N, N), ops)
 
 
 	'''
@@ -259,7 +259,7 @@ def this_run_target():
 			  [1, 1, 1, 1, 0]
 	]
 
-	'''
+
 	target = [[1, 1, 1, 1, 1],
 			  [1, 0, 1, 1, 1],
 			  [1, 1, 0, 1, 1],
@@ -267,13 +267,13 @@ def this_run_target():
 			  [1, 1, 1, 1, 0]
 	]
 	'''
-	target = [[1, 1, 0, 1],
+	target = [[1, 0, 1, 1],
 			  [0, 1, 1, 1],
-			  [0, 0, 1, 0],
+			  [0, 0, 1, 1],
 			  [0, 0, 0, 1]
 
 	]
-	
+	'''
 	
 	target = [[0, 1, 1, 1],
 			  [1, 0, 1, 1],
