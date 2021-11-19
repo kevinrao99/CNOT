@@ -26,10 +26,35 @@ class PMP_class:
 				output = output + str(arr) + "\n"
 			ourput = output + "\n \n"
 			'''
+		output = output + "\n"
+		'''
+		output = output + "\nMembers:\n"
+		for member in self.members:
+			member_mat = cnot_util.int_to_matrix(member, len(self.rep), len(self.rep[0]))
+			for arr in member_mat:
+				output = output + str(arr) + "\n"
+			output = output + "\n"
+		'''
+
 		return output
 
 
+def transpose(matrix):
+	# outputs a new matrix without modifying original, which is transpose of original
+	global N
+	global M
 
+	if not (N == M):
+		print "====== ERROR not transposing a square matrix ======"
+		return
+
+	ans = []
+	for i in range(N):
+		ans.append([])
+		for j in range(N):
+			ans[i].append(matrix[j][i])
+
+	return ans
 
 def perm_as_pmp(perm, matrix):
 	# constructs a new matrix without modifying the original, outputs PMP^-1
@@ -53,33 +78,47 @@ def visit_equiv_matrices(matrix):
 	global reached
 	global pmp_to_matrix
 	global matrix_to_pmp
+	global include_transpose
 
 	cur_hash = cnot_util.matrix_to_int(matrix)
 	cur_distance = reached[cur_hash]
+
+	if cur_hash in matrix_to_pmp: # If we've already processed the equiv class of this matrix, don't do it again
+		return
 
 	cur_pmp = PMP_class(matrix, cur_distance)
 	pmp_to_matrix[cur_pmp] = matrix
 
 	perm = range(N)
 
+	def process_equiv_relation(relation, matrix):
+		# given a relation which on input the original matrix outputs a matrix in the equivalence class defined by the relation, processes the relation on the matrix
+		# for example, given a permutation an matrix, processes pmp
+		# the relation parameter is a function
+
+		equiv_matrix = relation(matrix)
+		equiv_hash = cnot_util.matrix_to_int(equiv_matrix)
+
+		cur_pmp.members.add(equiv_hash)
+		matrix_to_pmp[equiv_hash] = cur_pmp
+
+		'''
+		if not (equiv_hash in reached):
+			reached[equiv_hash] = cur_distance
+			distances[cur_distance].append(equiv_matrix)
+		''' # Optimization to avoid visiting matrices multiple times, but this only works if the equivalence relation is vertex transitive
+
+		return equiv_matrix
+
 	while perm: # quits when perm is None
 
 		# apply PMP^-1, hash result with matrix_to_int, store in reached and distances
+		# Then do transpose of the PMP, same thing
 
-		permuted_matrix = perm_as_pmp(perm, matrix)
-		permuted_hash = cnot_util.matrix_to_int(permuted_matrix)
+		perm_matrix = process_equiv_relation(lambda matrix: perm_as_pmp(perm, matrix), matrix)
 
-		cur_pmp.members.add(permuted_hash)
-		matrix_to_pmp[permuted_hash] = cur_pmp
-
-		if not (permuted_hash in reached):
-			reached[permuted_hash] = cur_distance
-
-			if not (cur_distance in distances):
-				print "shouldn't ever be here in visit_equiv_matrices"
-				distances[cur_distance] = []
-
-			distances[cur_distance].append(permuted_matrix)
+		if include_transpose:
+			process_equiv_relation(lambda matrix: transpose(matrix), perm_matrix)
 
 		perm = cnot_util.next_permutation(perm)
 
@@ -152,8 +191,12 @@ def bfs():
 		cur = queue.popleft()
 
 		if len(cur) > cur_op_length:
-			print "\nstarting on " + str(len(cur)) + " operations",
+			print "starting on " + str(len(cur)) + " operations"
 			cur_op_length = len(cur)
+
+		if len(cur) < cur_op_length:
+			print "Shouldn't be here due to BFS invariant"
+			return
 
 		cur_matrix = cnot_util.perform_ops(cnot_util.identity(N, M), cur) # for M total rows, extra are ancilla
 		cur_hash = cnot_util.matrix_to_int(cur_matrix)
@@ -209,20 +252,24 @@ def build_pmp_graph():
 
 
 
-
-
 if __name__ == "__main__":
 	global N
 	global M # total rows, extra are ancilla
 	global queue
+	global include_transpose
 
-	N = 4
+	N = 3
 	M = N
+	include_transpose = True and (M == N)
 
 
 	queue = collections.deque([])
 
 	print "Running search of all matrices with PMP^-1 for N = " + str(N)
+	if include_transpose:
+		print "Including transpose in equiv class"
+	else:
+		print "Not including transpose in equiv class"
 
 	bfs()
 	build_pmp_graph()
@@ -249,20 +296,20 @@ if __name__ == "__main__":
 		print str(i) + ": " + str(dist_ct[i])
 
 	print
+
 	'''
 	print "class representatives:"
 	for key in pmp_keys:
 		print key.dist
 		for arr in key.rep:
 			print arr
+	
 	'''
+
 
 	pmp_keys.sort()
 	for key in pmp_keys:
-		if len(key.members) == 1:
-			print key
-
-
+		print key
 
 
 
